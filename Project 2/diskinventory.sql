@@ -3,7 +3,8 @@
 *---------    ---------------         ---------------------
 *10/8/2021		JCarr				    Initial Dev of Disk db
 *10/15/2021		JCarr					Added Fill Data
-*10/22/2021		JCarr					Added Select statements 		   
+*10/22/2021		JCarr					Added Select statements
+*10/25/2021		JCarr					Added Procs
 *
 ***************************************************************************/
 -- drop & create database
@@ -323,5 +324,59 @@ join borrower on borrower.borrower_id = disk_has_borrower.borrower_id
 where return_date is null
 order by cd_name;
 go
+
+
+
+--1
+Drop proc if exists sp_ins_disk_has_borrower
+go
+create proc sp_ins_disk_has_borrower
+	@disk_id int, @borrower_id int, @borrow_date datetime2, 
+	@return_date datetime2 = null
+	as
+	begin try
+	insert into disk_has_borrower
+	(disk_id, borrower_id, borrow_date, return_date)
+	Values
+	(@disk_id, @borrower_id, @borrow_date, @return_date);
+	end try
+	begin catch
+		print 'An error occurred. Row was not inserted.';
+		print 'Error number: ' + convert(varchar, Error_number());
+		print ' Error message: ' + convert(varchar(255), ERROR_MESSAGE());
+	END CATCH
+	GO
+	exec sp_ins_disk_has_borrower 20, 19, '10/15/2021';
+	go
+	exec sp_ins_disk_has_borrower 20, 19, '10/01/2021', '10/10/2021';
+	go
+	exec sp_ins_disk_has_borrower 20, 100, '10/04/2021', '10/20/2021';
+	go
+
+
+	--2
+Drop proc if exists sp_upd_disk_has_borrower
+go
+create proc sp_upd_disk_has_borrower
+	@disk_has_borrower_id int, @disk_id int, @borrower_id int,
+	@borrow_date datetime2, @return_date datetime2 = null
+	as
+Begin try
+update disk_has_borrower
+	set disk_id = @disk_id, borrower_id = @borrower_id,
+	borrow_date = @borrow_date, return_date = @return_date
+	where @disk_has_borrower_id = @disk_has_borrower_id
+	end try
+	begin catch
+		print 'An error occurred. Row was not inserted.';
+		print 'Error number: ' + convert(varchar, Error_number());
+		print ' Error message: ' + convert(varchar(255), ERROR_MESSAGE());
+	END CATCH
+	go
+	exec sp_upd_disk_has_borrower 22, 1, 11, '1/2/2021', '2/2/2021';
+	exec sp_upd_disk_has_borrower 22, 1, 11, '1/1/2021';
+	exec sp_upd_disk_has_borrower 22, 1, 1111, '1/1/2021';
+
+
 
 
