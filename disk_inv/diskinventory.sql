@@ -5,7 +5,7 @@
 *10/15/2021		JCarr					Added Fill Data
 *10/22/2021		JCarr					Added Select statements
 *10/25/2021		JCarr					Added Procs
-*
+*10/27/2021		JCarr					Added more stored procedures
 ***************************************************************************/
 -- drop & create database
 use master;
@@ -374,9 +374,103 @@ update disk_has_borrower
 	END CATCH
 	go
 	exec sp_upd_disk_has_borrower 22, 1, 11, '1/2/2021', '2/2/2021';
+	go
 	exec sp_upd_disk_has_borrower 22, 1, 11, '1/1/2021';
+	go
 	exec sp_upd_disk_has_borrower 22, 1, 1111, '1/1/2021';
+	go
 
 
 
+-- Project 5 #2
+DROP PROC IF EXISTS sp_ins_artist
+go
 
+CREATE PROC sp_ins_artist
+@description nvarchar(120), @artist_type int
+
+as
+Begin Try
+INSERT INTO artist
+(description, artist_type_id)
+
+Values
+(@description, @artist_type);
+end try
+begin catch
+		print 'An error occurred. Data was not inserted.';
+		print 'Error number: ' + convert(varchar, Error_number());
+		print ' Error message: ' + convert(varchar(255), ERROR_MESSAGE());
+	END CATCH
+	go
+
+exec sp_ins_artist 'Cher', '1'
+go
+exec sp_ins_artist 'Jared Letto', '1'
+go
+exec sp_ins_artist 'Jared Letto', '111111'
+go
+
+
+grant exec on sp_ins_artist to ProjectUserjc;
+go
+--update artist
+DROP PROC IF EXISTS sp_upd_artist
+go
+
+CREATE PROC sp_upd_artist
+@description nvarchar(120), @artist_type int, @artist_id int
+
+as
+Begin Try
+UPDATE artist
+set description = @description
+	,artist_type_id = @artist_type
+Where artist_id = @artist_id
+end try
+begin catch
+		print 'An error occurred. Data was not inserted.';
+		print 'Error number: ' + convert(varchar, Error_number());
+		print ' Error message: ' + convert(varchar(255), ERROR_MESSAGE());
+	END CATCH
+	go
+
+exec sp_upd_artist 'Update Cher', 1, '23'
+go
+exec sp_upd_artist 'Jared Letto update', 1, '24'
+go
+exec sp_upd_artist 'Jared Letto update', 11111, '24'
+go
+grant exec on sp_upd_artist to ProjectUserjc;
+
+
+--delete
+DROP PROC IF EXISTS sp_del_artist
+go
+
+CREATE PROC sp_del_artist
+@artist_id int
+
+as
+Begin Try
+DELETE artist
+where artist_id = @artist_id
+end try
+begin catch
+		print 'An error occurred. Data was not deleted.';
+		print 'Error number: ' + convert(varchar, Error_number());
+		print ' Error message: ' + convert(varchar(255), ERROR_MESSAGE());
+	END CATCH
+	go
+
+	exec sp_del_artist 24;
+	go
+	exec sp_del_artist 1;
+	go
+	
+	grant exec on sp_del_artist to ProjectUserjc;
+	go
+
+
+
+--Part 3 and part 4 couldnt finish in time.
